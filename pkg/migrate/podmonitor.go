@@ -40,7 +40,7 @@ func (c *PodMonitorConverter) Convert(_ context.Context, logger *slog.Logger, un
 		return nil, errors.New("cannot convert nil or uninitialized unstructured resource")
 	}
 
-	// 1. Unmarshal unstructured to typed PodMonitor
+	// 1. Unmarshal unstructured to typed PodMonitor.
 	var podMonitor pomonitoringv1.PodMonitor
 	err := runtime.DefaultUnstructuredConverter.FromUnstructured(unstruct.Object, &podMonitor)
 	if err != nil {
@@ -49,11 +49,11 @@ func (c *PodMonitorConverter) Convert(_ context.Context, logger *slog.Logger, un
 
 	logger.Info("Successfully decoded PodMonitor", slog.String("name", podMonitor.Name))
 
-	// 2. Determine Scoping based on namespaceSelector
+	// 2. Determine Scoping based on namespaceSelector.
 	nsSel := podMonitor.Spec.NamespaceSelector
 
 	if nsSel.Any {
-		// Case A: namespaceSelector.any = true -> Single ClusterPodMonitoring
+		// Case A: namespaceSelector.any = true -> Single ClusterPodMonitoring.
 		logger.Info("namespaceSelector selects 'any: true'. Translated to 'ClusterPodMonitoring'")
 		u, err := c.convertToClusterPodMonitoring(&podMonitor)
 		if err != nil {
@@ -63,10 +63,10 @@ func (c *PodMonitorConverter) Convert(_ context.Context, logger *slog.Logger, un
 	}
 
 	if len(nsSel.MatchNames) > 0 {
-		// Case B: namespaceSelector.matchNames listed -> Multiple PodMonitoring resources (one per namespace)
+		// Case B: namespaceSelector.matchNames listed -> Multiple PodMonitoring resources (one per namespace).
 		targetNamespaces := ParseAndCleanNamespaces(nsSel.MatchNames)
 
-		// 2.1 Fail if all provided names were empty/whitespace (broken config)
+		// 2.1 Fail if all provided names were empty/whitespace (broken config).
 		if len(targetNamespaces) == 0 {
 			return nil, errors.New("namespaceSelector.matchNames contains only empty or invalid values")
 		}
@@ -77,13 +77,13 @@ func (c *PodMonitorConverter) Convert(_ context.Context, logger *slog.Logger, un
 			)
 		}
 
-		// 2.2 Convert to a base namespaced PodMonitoring
+		// 2.2 Convert to a base namespaced PodMonitoring.
 		baseU, err := c.convertToPodMonitoring(&podMonitor)
 		if err != nil {
 			return nil, err
 		}
 
-		// 2.3 Clone and apply target namespaces
+		// 2.3 Clone and apply target namespaces.
 		var outputs []*unstructured.Unstructured
 		for _, ns := range targetNamespaces {
 			uClone := baseU.DeepCopy()
@@ -93,7 +93,7 @@ func (c *PodMonitorConverter) Convert(_ context.Context, logger *slog.Logger, un
 		return outputs, nil
 	}
 
-	// Case C: namespaceSelector is empty/omitted -> Single PodMonitoring in local namespace
+	// Case C: namespaceSelector is empty/omitted -> Single PodMonitoring in local namespace.
 	u, err := c.convertToPodMonitoring(&podMonitor)
 	if err != nil {
 		return nil, err
@@ -116,7 +116,7 @@ func (c *PodMonitorConverter) convertToPodMonitoring(pm *pomonitoringv1.PodMonit
 		return nil, fmt.Errorf("failed to marshal PodMonitoring: %w", err)
 	}
 
-	// Explicitly restore type meta as ToUnstructured sometimes strips it
+	// Explicitly restore type meta as ToUnstructured sometimes strips it.
 	u := &unstructured.Unstructured{Object: unstructuredMap}
 	u.SetAPIVersion(GMPAPIVersion)
 	u.SetKind(KindPodMonitoring)

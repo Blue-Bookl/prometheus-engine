@@ -47,7 +47,7 @@ type ResourceConverter interface {
 
 // ResourceCache stores parsed Kubernetes resources for cross-resource resolution.
 type ResourceCache struct {
-	// Map of Kind -> Namespace/Name -> Resource
+	// Map of Kind -> Namespace/Name -> Resource.
 	resources map[string]map[string]*unstructured.Unstructured
 }
 

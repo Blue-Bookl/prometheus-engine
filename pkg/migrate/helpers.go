@@ -29,8 +29,7 @@ func BuildTypeMeta(kind string) metav1.TypeMeta {
 	}
 }
 
-// CopyObjectMeta copies user-controlled metadata (Name, Labels, Annotations) from source to target,
-// setting the namespace to the specified target namespace and filtering out helm and system annotations/labels.
+// CopyObjectMeta copies Name, Labels and Annotations from source to target.
 func CopyObjectMeta(src metav1.ObjectMeta, targetNamespace string) metav1.ObjectMeta {
 	dst := metav1.ObjectMeta{
 		Name:        src.Name,
@@ -42,7 +41,7 @@ func CopyObjectMeta(src metav1.ObjectMeta, targetNamespace string) metav1.Object
 	// Strip this annotation because it will contain the old PO schema.
 	delete(dst.Annotations, "kubectl.kubernetes.io/last-applied-configuration")
 
-	// Future consideration: Delete deployment specific annotations/labels (helm, ARGO, Kustomize etc.)
+	// Future consideration: Delete deployment specific annotations/labels (helm, ARGO, Kustomize etc.).
 
 	return dst
 }
