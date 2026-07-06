@@ -29,10 +29,10 @@ import (
 type ResourceStatus int
 
 const (
-	StatusSuccess ResourceStatus = iota // 0 (Migrated Successfully)
-	StatusSkipped                       // 1 (Skipped / Unsupported)
-	StatusWarning                       // 2 (Migrated with Warnings)
-	StatusFailed                        // 3 (Failed)
+	StatusSuccess ResourceStatus = iota // 0 (Migrated Successfully).
+	StatusSkipped                       // 1 (Skipped / Unsupported).
+	StatusWarning                       // 2 (Migrated with Warnings).
+	StatusFailed                        // 3 (Failed).
 )
 
 // statusLevels maps slog.Levels to their corresponding ResourceStatus.
@@ -69,7 +69,7 @@ func NewConsoleHandler(out io.Writer) *ConsoleHandler {
 }
 
 func (h *ConsoleHandler) Enabled(_ context.Context, _ slog.Level) bool {
-	return true // Log everything
+	return true // Log everything.
 }
 
 func (h *ConsoleHandler) Handle(_ context.Context, r slog.Record) error {

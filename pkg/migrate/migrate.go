@@ -36,11 +36,11 @@ import (
 
 // MigrationReport accumulates the statistics and payloads of the migration run.
 type MigrationReport struct {
-	SuccessCount int                          // Successfully migrated with no warnings
-	WarningCount int                          // Successfully migrated but had warnings
-	SkippedCount int                          // Bypassed because resource is unsupported/out-of-scope
-	FailedCount  int                          // Fatal failure, resource skipped
-	Outputs      []*unstructured.Unstructured // Converted GMP manifests in-memory
+	SuccessCount int                          // Successfully migrated with no warnings.
+	WarningCount int                          // Successfully migrated but had warnings.
+	SkippedCount int                          // Bypassed because resource is unsupported/out-of-scope.
+	FailedCount  int                          // Fatal failure, resource skipped.
+	Outputs      []*unstructured.Unstructured // Converted GMP manifests in-memory.
 }
 
 // Migrator orchestrates the migration process.
