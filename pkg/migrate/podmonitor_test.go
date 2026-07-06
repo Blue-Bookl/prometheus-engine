@@ -65,12 +65,6 @@ func TestPodMonitorConversion(t *testing.T) {
 					},
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "global-monitor",
-						Labels: map[string]string{
-							"team": "frontend",
-						},
-						Annotations: map[string]string{
-							"prometheus.io/scrape": "true",
-						},
 					},
 					Spec: monitoringv1.ClusterPodMonitoringSpec{
 						Selector: metav1.LabelSelector{

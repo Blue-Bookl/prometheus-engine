@@ -55,7 +55,7 @@ func (c *PodMonitorConverter) Convert(_ context.Context, logger *slog.Logger, un
 	if nsSel.Any {
 		// Case A: namespaceSelector.any = true -> Single ClusterPodMonitoring.
 		logger.Info("namespaceSelector selects 'any: true'. Translated to 'ClusterPodMonitoring'")
-		u, err := c.convertToClusterPodMonitoring(&podMonitor)
+		u, err := c.convertToClusterPodMonitoring(&podMonitor, logger)
 		if err != nil {
 			return nil, err
 		}
@@ -78,7 +78,7 @@ func (c *PodMonitorConverter) Convert(_ context.Context, logger *slog.Logger, un
 		}
 
 		// 2.2 Convert to a base namespaced PodMonitoring.
-		baseU, err := c.convertToPodMonitoring(&podMonitor)
+		baseU, err := c.convertToPodMonitoring(&podMonitor, logger)
 		if err != nil {
 			return nil, err
 		}
@@ -94,17 +94,17 @@ func (c *PodMonitorConverter) Convert(_ context.Context, logger *slog.Logger, un
 	}
 
 	// Case C: namespaceSelector is empty/omitted -> Single PodMonitoring in local namespace.
-	u, err := c.convertToPodMonitoring(&podMonitor)
+	u, err := c.convertToPodMonitoring(&podMonitor, logger)
 	if err != nil {
 		return nil, err
 	}
 	return []*unstructured.Unstructured{u}, nil
 }
 
-func (c *PodMonitorConverter) convertToPodMonitoring(pm *pomonitoringv1.PodMonitor) (*unstructured.Unstructured, error) {
+func (c *PodMonitorConverter) convertToPodMonitoring(pm *pomonitoringv1.PodMonitor, logger *slog.Logger) (*unstructured.Unstructured, error) {
 	gmpPM := &monitoringv1.PodMonitoring{
 		TypeMeta:   BuildTypeMeta(KindPodMonitoring),
-		ObjectMeta: CopyObjectMeta(pm.ObjectMeta, pm.Namespace),
+		ObjectMeta: CopyObjectMeta(pm.ObjectMeta, pm.Namespace, logger),
 		Spec: monitoringv1.PodMonitoringSpec{
 			Selector: pm.Spec.Selector,
 			// TODO: Migrate pm.Spec.PodMetricsEndpoints to Spec.Endpoints in subsequent step.
@@ -124,10 +124,10 @@ func (c *PodMonitorConverter) convertToPodMonitoring(pm *pomonitoringv1.PodMonit
 	return u, nil
 }
 
-func (c *PodMonitorConverter) convertToClusterPodMonitoring(pm *pomonitoringv1.PodMonitor) (*unstructured.Unstructured, error) {
+func (c *PodMonitorConverter) convertToClusterPodMonitoring(pm *pomonitoringv1.PodMonitor, logger *slog.Logger) (*unstructured.Unstructured, error) {
 	gmpCPM := &monitoringv1.ClusterPodMonitoring{
 		TypeMeta:   BuildTypeMeta(KindClusterPodMonitoring),
-		ObjectMeta: CopyObjectMeta(pm.ObjectMeta, ""), // Cluster-scoped, namespace is omitted
+		ObjectMeta: CopyObjectMeta(pm.ObjectMeta, "", logger), // Cluster-scoped, namespace is omitted
 		Spec: monitoringv1.ClusterPodMonitoringSpec{
 			Selector: pm.Spec.Selector,
 			// TODO: Migrate pm.Spec.PodMetricsEndpoints to Spec.Endpoints in subsequent step.

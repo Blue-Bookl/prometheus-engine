@@ -15,7 +15,7 @@
 package migrate
 
 import (
-	"maps"
+	"log/slog"
 	"strings"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -29,19 +29,16 @@ func BuildTypeMeta(kind string) metav1.TypeMeta {
 	}
 }
 
-// CopyObjectMeta copies Name, Labels and Annotations from source to target.
-func CopyObjectMeta(src metav1.ObjectMeta, targetNamespace string) metav1.ObjectMeta {
+// CopyObjectMeta copies Name and Namespace from source to target, and strips labels and annotations.
+func CopyObjectMeta(src metav1.ObjectMeta, targetNamespace string, logger *slog.Logger) metav1.ObjectMeta {
 	dst := metav1.ObjectMeta{
-		Name:        src.Name,
-		Namespace:   targetNamespace,
-		Labels:      maps.Clone(src.Labels),
-		Annotations: maps.Clone(src.Annotations),
+		Name:      src.Name,
+		Namespace: targetNamespace,
 	}
 
-	// Strip this annotation because it will contain the old PO schema.
-	delete(dst.Annotations, "kubectl.kubernetes.io/last-applied-configuration")
-
-	// Future consideration: Delete deployment specific annotations/labels (helm, ARGO, Kustomize etc.).
+	if len(src.Labels) > 0 || len(src.Annotations) > 0 {
+		logger.Warn("Stripped all metadata labels and annotations. Reconfigure them manually if needed")
+	}
 
 	return dst
 }
