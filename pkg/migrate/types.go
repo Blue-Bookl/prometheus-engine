@@ -23,6 +23,20 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
+const (
+	GMPAPIVersion = "monitoring.googleapis.com/v1"
+
+	KindPodMonitoring        = "PodMonitoring"
+	KindClusterPodMonitoring = "ClusterPodMonitoring"
+	KindOperatorConfig       = "OperatorConfig"
+	KindPodMonitor           = "PodMonitor"
+	KindServiceMonitor       = "ServiceMonitor"
+	KindPrometheus           = "Prometheus"
+	KindService              = "Service"
+	KindConfigMap            = "ConfigMap"
+	KindSecret               = "Secret"
+)
+
 // ResourceConverter defines the interface for converting a specific Prometheus Operator resource kind.
 type ResourceConverter interface {
 	// ImportKey returns the Kind of the resource this converter handles (e.g., "PodMonitor").
@@ -33,7 +47,7 @@ type ResourceConverter interface {
 
 // ResourceCache stores parsed Kubernetes resources for cross-resource resolution.
 type ResourceCache struct {
-	// Map of Kind -> Namespace/Name -> Resource
+	// Map of Kind -> Namespace/Name -> Resource.
 	resources map[string]map[string]*unstructured.Unstructured
 }
 
